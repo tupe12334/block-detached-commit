@@ -112,7 +112,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org
+          # registry-url intentionally omitted — specifying it makes setup-node inject
+          # NODE_AUTH_TOKEN into .npmrc, which conflicts with OIDC trusted publisher auth.
 
       - name: Stamp version from tag
         working-directory: npm
