@@ -113,13 +113,6 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
-          token: ''
-          # token:'' prevents setup-node from exporting github.token as NODE_AUTH_TOKEN.
-          # Without NODE_AUTH_TOKEN in env and no _authToken in .npmrc, npm 9.5+ falls
-          # through to OIDC trusted-publisher exchange via ACTIONS_ID_TOKEN_REQUEST_URL.
-
-      - name: Remove _authToken injected by setup-node
-        run: sed -i '/:_authToken/d' "${NPM_CONFIG_USERCONFIG}"
 
       - name: Stamp version from tag
         working-directory: npm
@@ -133,6 +126,8 @@ jobs:
       - name: Publish
         working-directory: npm
         run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   publish-go:
     name: Tag Go module
