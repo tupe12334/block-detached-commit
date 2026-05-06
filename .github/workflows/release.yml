@@ -112,8 +112,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          # registry-url intentionally omitted — specifying it makes setup-node inject
-          # NODE_AUTH_TOKEN into .npmrc, which conflicts with OIDC trusted publisher auth.
+          registry-url: https://registry.npmjs.org
+
+      - name: Remove token auth injected by setup-node
+        # setup-node writes _authToken=${NODE_AUTH_TOKEN} into .npmrc; that empty token
+        # beats OIDC trusted-publisher auth. Delete it so npm falls through to OIDC.
+        run: npm config delete //registry.npmjs.org/:_authToken
 
       - name: Stamp version from tag
         working-directory: npm
@@ -123,8 +127,8 @@ jobs:
 
       - name: Publish
         working-directory: npm
-        # --provenance triggers OIDC auth + attaches a signed build attestation.
-        # NODE_AUTH_TOKEN is intentionally absent — OIDC replaces token-based auth.
+        # --provenance triggers OIDC token exchange with the npm trusted publisher.
+        # No NODE_AUTH_TOKEN — OIDC handles auth after _authToken is cleared above.
         run: npm publish --access public --provenance
 
   publish-go:
