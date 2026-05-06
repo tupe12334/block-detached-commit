@@ -123,7 +123,10 @@ jobs:
         working-directory: npm
         run: |
           TAG="${GITHUB_REF_NAME#v}"
-          npm version "$TAG" --no-git-tag-version
+          CURRENT=$(node -p "require('./package.json').version")
+          if [ "$CURRENT" != "$TAG" ]; then
+            npm version "$TAG" --no-git-tag-version
+          fi
 
       - name: Publish
         working-directory: npm
