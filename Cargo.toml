@@ -1,0 +1,18 @@
+[package]
+name = "block-detached-commit"
+version = "0.1.0"
+edition = "2021"
+description = "Git pre-commit hook that blocks commits in detached HEAD state"
+license = "MIT"
+repository = "https://github.com/tupe12334/block-detached-commit"
+homepage = "https://github.com/tupe12334/block-detached-commit"
+keywords = ["git", "hook", "pre-commit", "detached-head"]
+categories = ["command-line-utilities", "development-tools"]
+readme = "README.md"
+
+[[bin]]
+name = "block-detached-commit"
+path = "src/main.rs"
+
+[dev-dependencies]
+tempfile = "3"

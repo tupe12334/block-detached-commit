@@ -1,0 +1,26 @@
+{
+  "name": "block-detached-commit",
+  "version": "0.1.0",
+  "description": "Git pre-commit hook that blocks commits in detached HEAD state",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tupe12334/block-detached-commit.git"
+  },
+  "homepage": "https://github.com/tupe12334/block-detached-commit",
+  "keywords": ["git", "hook", "pre-commit", "detached-head", "husky"],
+  "bin": {
+    "block-detached-commit": "bin/cli.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "bin-native/"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

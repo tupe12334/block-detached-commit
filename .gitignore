@@ -1,0 +1,6 @@
+/target/
+node_modules/
+npm/bin-native/
+go/block-detached-commit
+go/block-detached-commit.exe
+*.sha256
