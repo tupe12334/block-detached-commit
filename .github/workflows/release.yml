@@ -102,6 +102,10 @@ jobs:
     name: Publish npm
     needs: release
     runs-on: ubuntu-latest
+    environment: npm  # matches the trusted publisher environment on npmjs.com
+    permissions:
+      contents: read
+      id-token: write  # required for OIDC token exchange
     steps:
       - uses: actions/checkout@v4
 
@@ -118,9 +122,9 @@ jobs:
 
       - name: Publish
         working-directory: npm
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # --provenance triggers OIDC auth + attaches a signed build attestation.
+        # NODE_AUTH_TOKEN is intentionally absent — OIDC replaces token-based auth.
+        run: npm publish --access public --provenance
 
   publish-go:
     name: Tag Go module
