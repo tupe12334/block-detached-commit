@@ -12,7 +12,8 @@
       "Bash(npm version *)",
       "Bash(go build *)",
       "Bash(go vet *)",
-      "Bash(go mod *)"
+      "Bash(go mod *)",
+      "Bash(cargo check *)"
     ]
   }
 }
