@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tupe12334/block-detached-commit.git"
+    "url": "git+https://github.com/tupe12334/block-detached-commit.git"
   },
   "homepage": "https://github.com/tupe12334/block-detached-commit",
   "keywords": ["git", "hook", "pre-commit", "detached-head", "husky"],
