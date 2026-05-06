@@ -114,6 +114,12 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
+      - name: Remove _authToken injected by setup-node
+        # npm config delete is unreliable for per-registry keys; sed guarantees removal.
+        # With no _authToken key present (not empty — absent), npm falls through to
+        # OIDC trusted-publisher exchange using ACTIONS_ID_TOKEN_REQUEST_URL.
+        run: sed -i '/:_authToken/d' "${NPM_CONFIG_USERCONFIG}"
+
       - name: Stamp version from tag
         working-directory: npm
         run: |
