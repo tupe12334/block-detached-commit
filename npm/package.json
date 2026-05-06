@@ -13,12 +13,14 @@
     "block-detached-commit": "bin/cli.js"
   },
   "scripts": {
+    "prepack": "cp ../README.md README.md",
     "postinstall": "node scripts/postinstall.js"
   },
   "files": [
     "bin/",
     "scripts/",
-    "bin-native/"
+    "bin-native/",
+    "README.md"
   ],
   "engines": {
     "node": ">=18"

@@ -7,7 +7,8 @@
       "Bash(cargo test *)",
       "Bash(cargo clippy *)",
       "Bash(cargo fmt *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(npm whoami *)"
     ]
   }
 }
