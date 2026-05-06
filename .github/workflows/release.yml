@@ -113,11 +113,12 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
+          token: ''
+          # token:'' prevents setup-node from exporting github.token as NODE_AUTH_TOKEN.
+          # Without NODE_AUTH_TOKEN in env and no _authToken in .npmrc, npm 9.5+ falls
+          # through to OIDC trusted-publisher exchange via ACTIONS_ID_TOKEN_REQUEST_URL.
 
       - name: Remove _authToken injected by setup-node
-        # npm config delete is unreliable for per-registry keys; sed guarantees removal.
-        # With no _authToken key present (not empty — absent), npm falls through to
-        # OIDC trusted-publisher exchange using ACTIONS_ID_TOKEN_REQUEST_URL.
         run: sed -i '/:_authToken/d' "${NPM_CONFIG_USERCONFIG}"
 
       - name: Stamp version from tag
@@ -129,21 +130,8 @@ jobs:
             npm version "$TAG" --no-git-tag-version
           fi
 
-      - name: Debug npm auth state
-        run: |
-          echo "=== NPM_CONFIG_USERCONFIG ==="
-          cat "${NPM_CONFIG_USERCONFIG}" || echo "(file missing)"
-          echo "=== npm version ==="
-          npm --version
-          echo "=== OIDC env ==="
-          echo "ACTIONS_ID_TOKEN_REQUEST_URL=${ACTIONS_ID_TOKEN_REQUEST_URL:-UNSET}"
-          echo "=== npm config list ==="
-          npm config list 2>&1 | grep -v "password\|token\|auth" || true
-
       - name: Publish
         working-directory: npm
-        # --provenance triggers OIDC token exchange with the npm trusted publisher.
-        # No NODE_AUTH_TOKEN — OIDC handles auth after _authToken is cleared above.
         run: npm publish --access public --provenance
 
   publish-go:
