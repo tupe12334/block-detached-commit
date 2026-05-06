@@ -1,6 +1,6 @@
 {
   "name": "block-detached-commit",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Git pre-commit hook that blocks commits in detached HEAD state",
   "license": "MIT",
   "repository": {
