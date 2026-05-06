@@ -129,6 +129,17 @@ jobs:
             npm version "$TAG" --no-git-tag-version
           fi
 
+      - name: Debug npm auth state
+        run: |
+          echo "=== NPM_CONFIG_USERCONFIG ==="
+          cat "${NPM_CONFIG_USERCONFIG}" || echo "(file missing)"
+          echo "=== npm version ==="
+          npm --version
+          echo "=== OIDC env ==="
+          echo "ACTIONS_ID_TOKEN_REQUEST_URL=${ACTIONS_ID_TOKEN_REQUEST_URL:-UNSET}"
+          echo "=== npm config list ==="
+          npm config list 2>&1 | grep -v "password\|token\|auth" || true
+
       - name: Publish
         working-directory: npm
         # --provenance triggers OIDC token exchange with the npm trusted publisher.
