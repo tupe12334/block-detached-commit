@@ -9,7 +9,10 @@
       "Bash(cargo fmt *)",
       "Bash(git commit *)",
       "Bash(npm whoami *)",
-      "Bash(npm version *)"
+      "Bash(npm version *)",
+      "Bash(go build *)",
+      "Bash(go vet *)",
+      "Bash(go mod *)"
     ]
   }
 }

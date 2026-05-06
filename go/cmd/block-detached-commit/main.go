@@ -10,11 +10,22 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strings"
 )
 
-// version is stamped at build/release time via -ldflags="-X main.version=x.y.z"
+// version is resolved from the embedded module version at runtime.
+// Falls back to the hardcoded value for local `go run` / `go build` workflows.
 var version = "0.1.0"
+
+func init() {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		v := info.Main.Version
+		if v != "" && v != "(devel)" {
+			version = strings.TrimPrefix(v, "v")
+		}
+	}
+}
 
 var platformMap = map[string]string{
 	"linux/amd64":   "x86_64-unknown-linux-gnu",
