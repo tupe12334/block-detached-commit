@@ -19,3 +19,4 @@ tempfile = "3"
 
 [lints.clippy]
 manual_let_else = "warn"
+uninlined_format_args = "warn"
