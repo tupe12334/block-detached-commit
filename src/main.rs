@@ -72,12 +72,9 @@ fn run_uninstall() {
     let git_dir = git_dir_or_exit();
     let hook_path = hooks_dir(&git_dir).join("pre-commit");
 
-    let content = match fs::read_to_string(&hook_path) {
-        Ok(c) => c,
-        Err(_) => {
-            eprintln!("info: hook not found, nothing to uninstall");
-            return;
-        }
+    let Ok(content) = fs::read_to_string(&hook_path) else {
+        eprintln!("info: hook not found, nothing to uninstall");
+        return;
     };
 
     if !content.contains(MARKER) {

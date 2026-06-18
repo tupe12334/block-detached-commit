@@ -16,3 +16,6 @@ path = "src/main.rs"
 
 [dev-dependencies]
 tempfile = "3"
+
+[lints.clippy]
+manual_let_else = "warn"
