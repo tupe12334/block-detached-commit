@@ -19,3 +19,4 @@ tempfile = "3"
 
 [lints.clippy]
 manual_let_else = "warn"
+semicolon_if_nothing_returned = "warn"
