@@ -53,3 +53,12 @@ map_unwrap_or = "warn"
 # `main`), so enabling this keeps closures from creeping back in and surfaces the
 # shorter, intent-revealing spelling.
 redundant_closure_for_method_calls = "warn"
+# Forbid glob imports (`use foo::*`). Wildcard imports pull an unknown set of
+# names into scope, so a reader can no longer tell where an identifier comes
+# from, and a future upstream release can silently introduce a name that
+# shadows or clashes with a local one. Explicit, named imports keep the
+# provenance of every symbol visible at the top of the file and make this
+# pre-commit hook's small surface easy to audit. The crate uses only explicit
+# imports today, so this lint has zero current violations and acts as a
+# regression guard.
+wildcard_imports = "deny"
