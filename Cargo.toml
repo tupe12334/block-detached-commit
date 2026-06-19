@@ -26,6 +26,11 @@ manual_let_else = "warn"
 unwrap_used = "deny"
 needless_pass_by_value = "warn"
 option_if_let_else = "warn"
+# Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
+# Such wrappers advertise a failure mode that cannot occur and force every caller
+# into needless `?`/`unwrap`/`match` ceremony. The crate is clean today, so this
+# acts as a regression guard keeping helper signatures honest.
+unnecessary_wraps = "deny"
 # Flag `match` blocks that contain two or more arms with identical bodies.
 # These are usually a copy-paste slip or arms that should be merged with `|`.
 # Catching them keeps `match` expressions DRY and surfaces accidental
