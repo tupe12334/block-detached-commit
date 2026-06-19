@@ -24,3 +24,4 @@ manual_let_else = "warn"
 # errors and exit codes this tool reports. Test code is exempt (see the
 # `cfg_attr(test, allow(...))` at the top of src/main.rs).
 unwrap_used = "deny"
+option_if_let_else = "warn"
