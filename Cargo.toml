@@ -36,3 +36,8 @@ unnecessary_wraps = "deny"
 # Catching them keeps `match` expressions DRY and surfaces accidental
 # duplicate handling that can hide logic bugs.
 match_same_arms = "warn"
+# Flag `opt.map(f).unwrap_or(default)` / `.unwrap_or_else(..)` chains that read
+# more clearly as a single `map_or` / `map_or_else`. This crate already prefers
+# the `map_or_else` form (see `build_hook_content`), so enabling the lint keeps
+# `Option`/`Result` handling consistent and avoids the longer two-call idiom.
+map_unwrap_or = "warn"
