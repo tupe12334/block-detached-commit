@@ -53,3 +53,9 @@ map_unwrap_or = "warn"
 # `main`), so enabling this keeps closures from creeping back in and surfaces the
 # shorter, intent-revealing spelling.
 redundant_closure_for_method_calls = "warn"
+# All user-facing output in this tool goes to stderr via `eprintln!` so stdout
+# stays clean: a pre-commit hook runs inside git's plumbing, and stray stdout can
+# interfere with callers/tooling that capture it. Deny `println!` / `print!` to
+# enforce that invariant — any accidental stdout write is a bug here. The crate is
+# clean today, so this acts as a regression guard.
+print_stdout = "deny"
