@@ -53,3 +53,9 @@ map_unwrap_or = "warn"
 # `main`), so enabling this keeps closures from creeping back in and surfaces the
 # shorter, intent-revealing spelling.
 redundant_closure_for_method_calls = "warn"
+# Flag an `else` block whose preceding `if` branch always diverges (ends in
+# `return`/`break`/`continue` or a never-returning call). The `else` is then
+# dead weight: its body can be de-indented to the enclosing scope, turning the
+# construct into a flat guard clause. The crate is clean today, so this acts as
+# a regression guard keeping control flow shallow and the happy path readable.
+redundant_else = "warn"
