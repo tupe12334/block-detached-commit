@@ -19,6 +19,11 @@ tempfile = "3"
 
 [lints.clippy]
 manual_let_else = "warn"
+# Forbid `.unwrap()` in production code: a panic in a pre-commit hook aborts with
+# an opaque message and the panic exit code instead of the deliberate, actionable
+# errors and exit codes this tool reports. Test code is exempt (see the
+# `cfg_attr(test, allow(...))` at the top of src/main.rs).
+unwrap_used = "deny"
 needless_pass_by_value = "warn"
 option_if_let_else = "warn"
 # Flag `match` blocks that contain two or more arms with identical bodies.

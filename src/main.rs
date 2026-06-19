@@ -1,3 +1,7 @@
+// `clippy::unwrap_used` is denied for production code (see Cargo.toml). Tests
+// legitimately use `.unwrap()` to assert on setup invariants, so exempt them.
+#![cfg_attr(test, allow(clippy::unwrap_used))]
+
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
