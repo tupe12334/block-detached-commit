@@ -21,3 +21,8 @@ tempfile = "3"
 manual_let_else = "warn"
 needless_pass_by_value = "warn"
 option_if_let_else = "warn"
+# Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
+# Such wrappers advertise a failure mode that cannot occur and force every caller
+# into needless `?`/`unwrap`/`match` ceremony. The crate is clean today, so this
+# acts as a regression guard keeping helper signatures honest.
+unnecessary_wraps = "deny"
