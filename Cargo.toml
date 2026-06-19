@@ -21,3 +21,8 @@ tempfile = "3"
 manual_let_else = "warn"
 needless_pass_by_value = "warn"
 option_if_let_else = "warn"
+# Flag `match` blocks that contain two or more arms with identical bodies.
+# These are usually a copy-paste slip or arms that should be merged with `|`.
+# Catching them keeps `match` expressions DRY and surfaces accidental
+# duplicate handling that can hide logic bugs.
+match_same_arms = "warn"
