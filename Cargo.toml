@@ -24,6 +24,12 @@ manual_let_else = "warn"
 # errors and exit codes this tool reports. Test code is exempt (see the
 # `cfg_attr(test, allow(...))` at the top of src/main.rs).
 unwrap_used = "deny"
+# `.expect()` panics exactly like `.unwrap()`, just with a custom message, so in a
+# pre-commit hook it produces the same opaque panic abort instead of this tool's
+# deliberate error reporting and exit codes. Deny it for production code to close
+# the gap left by `unwrap_used`; test code is exempt (see the `cfg_attr(test,
+# allow(...))` at the top of src/main.rs).
+expect_used = "deny"
 needless_pass_by_value = "warn"
 option_if_let_else = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
