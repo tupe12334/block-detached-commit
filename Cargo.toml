@@ -53,3 +53,11 @@ map_unwrap_or = "warn"
 # `main`), so enabling this keeps closures from creeping back in and surfaces the
 # shorter, intent-revealing spelling.
 redundant_closure_for_method_calls = "warn"
+# Flag `.clone()` calls whose result could instead be moved because the original
+# value is not used afterwards. Such clones allocate (and copy) needlessly. A
+# pre-commit hook runs on every commit, so avoiding wasted allocations keeps it
+# snappy; the crate is clone-free today, so this acts as a regression guard that
+# stops needless clones from creeping in. Kept at `warn` (this is a `nursery`
+# lint, matching `option_if_let_else` above) to stay conservative about the
+# occasional nursery false positive.
+redundant_clone = "warn"
