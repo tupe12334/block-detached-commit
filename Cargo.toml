@@ -18,6 +18,12 @@ path = "src/main.rs"
 tempfile = "3"
 
 [lints.clippy]
+# Flag any `dbg!(...)` macro left in the source. `dbg!` writes to stderr and is a
+# debugging aid that should never ship: in this pre-commit hook it would pollute
+# the tool's deliberate, structured stderr output and leak into users' commit
+# runs. The crate is free of `dbg!` today, so denying it acts as a regression
+# guard that keeps stray debug prints out of releases.
+dbg_macro = "deny"
 manual_let_else = "warn"
 # Forbid `.unwrap()` in production code: a panic in a pre-commit hook aborts with
 # an opaque message and the panic exit code instead of the deliberate, actionable
