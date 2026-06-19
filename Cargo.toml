@@ -19,4 +19,5 @@ tempfile = "3"
 
 [lints.clippy]
 manual_let_else = "warn"
+needless_pass_by_value = "warn"
 option_if_let_else = "warn"
