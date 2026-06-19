@@ -116,12 +116,13 @@ fn build_hook_content(existing: &str) -> String {
         return format!("#!/bin/sh\n{MARKER}\n{CALL}\n");
     }
     // Insert after the shebang line (if present) so we don't break it
-    if let Some(nl) = existing.find('\n') {
-        let (first_line, rest) = existing.split_at(nl + 1);
-        format!("{first_line}{MARKER}\n{CALL}\n{rest}")
-    } else {
-        format!("{existing}\n{MARKER}\n{CALL}\n")
-    }
+    existing.find('\n').map_or_else(
+        || format!("{existing}\n{MARKER}\n{CALL}\n"),
+        |nl| {
+            let (first_line, rest) = existing.split_at(nl + 1);
+            format!("{first_line}{MARKER}\n{CALL}\n{rest}")
+        },
+    )
 }
 
 fn git_dir_or_exit() -> PathBuf {
