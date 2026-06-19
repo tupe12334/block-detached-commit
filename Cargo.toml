@@ -30,6 +30,14 @@ unwrap_used = "deny"
 # the gap left by `unwrap_used`; test code is exempt (see the `cfg_attr(test,
 # allow(...))` at the top of src/main.rs).
 expect_used = "deny"
+# Flag slice/array indexing (`xs[i]`, `&s[a..b]`) that panics on an out-of-bounds
+# index. In a pre-commit hook such a panic aborts with an opaque message and the
+# panic exit code instead of this tool's deliberate, actionable errors and exit
+# codes — the same failure mode `unwrap_used`/`expect_used` already guard against.
+# Production code is index-free today, so this is a regression guard that keeps it
+# panic-safe; test code is exempt (see the `cfg_attr(test, allow(...))` at the top
+# of src/main.rs).
+indexing_slicing = "deny"
 needless_pass_by_value = "warn"
 option_if_let_else = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.

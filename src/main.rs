@@ -1,7 +1,11 @@
-// `clippy::unwrap_used` and `clippy::expect_used` are denied for production code
-// (see Cargo.toml). Tests legitimately use `.unwrap()`/`.expect()` to assert on
-// setup invariants, so exempt them.
-#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
+// `clippy::unwrap_used`, `clippy::expect_used` and `clippy::indexing_slicing` are
+// denied for production code (see Cargo.toml). Tests legitimately use
+// `.unwrap()`/`.expect()` and direct indexing to assert on setup invariants, so
+// exempt them.
+#![cfg_attr(
+    test,
+    allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)
+)]
 
 use std::fs;
 use std::io::Read;
