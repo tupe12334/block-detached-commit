@@ -53,3 +53,11 @@ map_unwrap_or = "warn"
 # `main`), so enabling this keeps closures from creeping back in and surfaces the
 # shorter, intent-revealing spelling.
 redundant_closure_for_method_calls = "warn"
+# Flag patterns that bind the unit type `()` with a wildcard `_` instead of the
+# explicit `()` pattern, e.g. `Ok(_)` / `if let Ok(_) = f()` where the success
+# value is unit. Writing `Ok(())` documents that the call yields nothing and lets
+# the type checker catch the day a `()`-returning call starts returning real data
+# (the wildcard would silently keep swallowing it). This crate threads several
+# `Result<(), _>` IO calls (`fs::write`, `fs::set_permissions`, `fs::remove_file`),
+# so the lint keeps their unit results spelled out and intent-revealing.
+ignored_unit_patterns = "warn"
