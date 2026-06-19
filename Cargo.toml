@@ -37,6 +37,15 @@ unwrap_used = "deny"
 # allow(...))` at the top of src/main.rs).
 expect_used = "deny"
 needless_pass_by_value = "warn"
+# A reachable `panic!`/`unreachable!`/`todo!`/`unimplemented!` aborts the
+# pre-commit hook with an opaque panic message and the panic exit code instead
+# of the deliberate, actionable errors and exit codes this tool reports — the
+# same failure mode already closed off by denying `unwrap_used`/`expect_used`.
+# Deny the panicking macros in production code so every error path stays an
+# explicit `eprintln!` + `process::exit`. Test code legitimately panics to
+# assert invariants, so it is exempt (see the `cfg_attr(test, allow(...))` at
+# the top of src/main.rs).
+panic = "deny"
 option_if_let_else = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
