@@ -41,3 +41,9 @@ match_same_arms = "warn"
 # the `map_or_else` form (see `build_hook_content`), so enabling the lint keeps
 # `Option`/`Result` handling consistent and avoids the longer two-call idiom.
 map_unwrap_or = "warn"
+# Flag closures that only forward their argument to a single method call, e.g.
+# `.map(|s| s.as_str())` where `.map(String::as_str)` reads more directly. The
+# crate already prefers the method-reference form (see the `String::as_str` in
+# `main`), so enabling this keeps closures from creeping back in and surfaces the
+# shorter, intent-revealing spelling.
+redundant_closure_for_method_calls = "warn"
