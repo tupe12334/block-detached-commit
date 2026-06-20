@@ -90,3 +90,13 @@ if_not_else = "warn"
 # `Result<(), _>` IO calls (`fs::write`, `fs::set_permissions`, `fs::remove_file`),
 # so the lint keeps their unit results spelled out and intent-revealing.
 ignored_unit_patterns = "warn"
+# Flag reads of a binding whose name starts with an underscore (e.g. `_result`,
+# `_path`). The leading underscore is a deliberate "intentionally unused" marker
+# that silences the unused-variable warning, so actually using the value is a
+# contradiction: either it matters (drop the underscore) or it does not (don't
+# read it). Left as-is the underscore lies to every future reader. This sits
+# alongside the denied `unwrap_used`/`expect_used`/`panic`/`unnecessary_wraps`
+# rules that keep every value and exit path deliberate — it stops a value marked
+# "ignored" from being silently consumed anyway. The crate is clean today, so
+# this acts as a regression guard keeping the underscore convention honest.
+used_underscore_binding = "warn"
