@@ -90,3 +90,11 @@ if_not_else = "warn"
 # `Result<(), _>` IO calls (`fs::write`, `fs::set_permissions`, `fs::remove_file`),
 # so the lint keeps their unit results spelled out and intent-revealing.
 ignored_unit_patterns = "warn"
+# Flag a two-arm `match` whose second arm is a catch-all `_`, where an
+# `if let ... else` reads more directly — the same readability goal already
+# pursued by `option_if_let_else` and `if_not_else`. A `match` with a single
+# meaningful pattern plus a wildcard buries the one case that matters in
+# `match`/arm ceremony; the `if let` form puts that case up front. The crate is
+# clean today (`main` dispatches over several real subcommand arms, not one), so
+# this acts as a regression guard keeping control flow in its clearest spelling.
+single_match_else = "warn"
