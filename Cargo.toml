@@ -76,6 +76,12 @@ map_unwrap_or = "warn"
 # `main`), so enabling this keeps closures from creeping back in and surfaces the
 # shorter, intent-revealing spelling.
 redundant_closure_for_method_calls = "warn"
+# Flag `if !cond { a } else { b }` where the negated condition forces the reader
+# to mentally invert it before reaching the body in the `else` arm. Swapping to
+# `if cond { b } else { a }` puts the positive case first and reads more directly.
+# The crate is clean today, so this guards against negated-`if` branches creeping
+# into the control flow this tool relies on for its exit-code decisions.
+if_not_else = "warn"
 # Flag patterns that bind the unit type `()` with a wildcard `_` instead of the
 # explicit `()` pattern, e.g. `Ok(_)` / `if let Ok(_) = f()` where the success
 # value is unit. Writing `Ok(())` documents that the call yields nothing and lets
