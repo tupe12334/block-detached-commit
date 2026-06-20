@@ -57,6 +57,14 @@ unnecessary_wraps = "deny"
 # Catching them keeps `match` expressions DRY and surfaces accidental
 # duplicate handling that can hide logic bugs.
 match_same_arms = "warn"
+# Flag or-patterns written nested instead of merged at the deepest common level,
+# e.g. `Some("a") | Some("b")` where `Some("a" | "b")` reads tighter. Keeps a
+# single arm with one or-pattern instead of repeating the outer constructor per
+# alternative — the same DRY/intent-revealing goal as `match_same_arms`. The
+# crate is clean today (the `None | Some("check")` arm in `main` is already in
+# its tightest form), so this acts as a regression guard against un-merged
+# or-patterns creeping in.
+unnested_or_patterns = "warn"
 # Flag `opt.map(f).unwrap_or(default)` / `.unwrap_or_else(..)` chains that read
 # more clearly as a single `map_or` / `map_or_else`. This crate already prefers
 # the `map_or_else` form (see `build_hook_content`), so enabling the lint keeps
