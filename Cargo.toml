@@ -90,3 +90,13 @@ if_not_else = "warn"
 # `Result<(), _>` IO calls (`fs::write`, `fs::set_permissions`, `fs::remove_file`),
 # so the lint keeps their unit results spelled out and intent-revealing.
 ignored_unit_patterns = "warn"
+# Flag `.to_string()` calls on values that are already `&str`, preferring the
+# more explicit `.to_owned()`. Both produce an owned `String`, but `.to_string()`
+# routes through the `Display`/`ToString` machinery and reads as a formatting
+# operation, while `.to_owned()` states the real intent: clone a borrowed string
+# into an owned one. Spelling it `.to_owned()` keeps "I am cloning a borrowed
+# &str" distinct from "I am rendering a value via Display", matching this crate's
+# preference for intent-revealing idioms. The crate is free of `&str`-to-`String`
+# conversions today, so denying it acts as a regression guard keeping the
+# conversion spelling consistent as the code grows.
+str_to_string = "deny"
