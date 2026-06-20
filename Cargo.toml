@@ -18,6 +18,12 @@ path = "src/main.rs"
 tempfile = "3"
 
 [lints.clippy]
+# Flag any `dbg!(...)` macro left in the source. `dbg!` writes to stderr and is a
+# debugging aid that should never ship: in this pre-commit hook it would pollute
+# the tool's deliberate, structured stderr output and leak into users' commit
+# runs. The crate is free of `dbg!` today, so denying it acts as a regression
+# guard that keeps stray debug prints out of releases.
+dbg_macro = "deny"
 manual_let_else = "warn"
 # Forbid `.unwrap()` in production code: a panic in a pre-commit hook aborts with
 # an opaque message and the panic exit code instead of the deliberate, actionable
@@ -31,6 +37,15 @@ unwrap_used = "deny"
 # allow(...))` at the top of src/main.rs).
 expect_used = "deny"
 needless_pass_by_value = "warn"
+# A reachable `panic!`/`unreachable!`/`todo!`/`unimplemented!` aborts the
+# pre-commit hook with an opaque panic message and the panic exit code instead
+# of the deliberate, actionable errors and exit codes this tool reports — the
+# same failure mode already closed off by denying `unwrap_used`/`expect_used`.
+# Deny the panicking macros in production code so every error path stays an
+# explicit `eprintln!` + `process::exit`. Test code legitimately panics to
+# assert invariants, so it is exempt (see the `cfg_attr(test, allow(...))` at
+# the top of src/main.rs).
+panic = "deny"
 option_if_let_else = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
@@ -59,3 +74,11 @@ redundant_closure_for_method_calls = "warn"
 # The crate is clean today, so this guards against negated-`if` branches creeping
 # into the control flow this tool relies on for its exit-code decisions.
 if_not_else = "warn"
+# Flag patterns that bind the unit type `()` with a wildcard `_` instead of the
+# explicit `()` pattern, e.g. `Ok(_)` / `if let Ok(_) = f()` where the success
+# value is unit. Writing `Ok(())` documents that the call yields nothing and lets
+# the type checker catch the day a `()`-returning call starts returning real data
+# (the wildcard would silently keep swallowing it). This crate threads several
+# `Result<(), _>` IO calls (`fs::write`, `fs::set_permissions`, `fs::remove_file`),
+# so the lint keeps their unit results spelled out and intent-revealing.
+ignored_unit_patterns = "warn"
