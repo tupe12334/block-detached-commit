@@ -90,3 +90,12 @@ if_not_else = "warn"
 # `Result<(), _>` IO calls (`fs::write`, `fs::set_permissions`, `fs::remove_file`),
 # so the lint keeps their unit results spelled out and intent-revealing.
 ignored_unit_patterns = "warn"
+# Flag item definitions (`fn`, `const`, `struct`, `use`, …) declared *after*
+# statements inside a function body. Rust permits items anywhere in a block, but
+# a nested `fn`/`const` buried below executable statements is easy to miss and
+# breaks the usual "declarations first, then logic" reading order. Hoisting such
+# items to the top of the block (or to module scope) keeps function bodies linear
+# — setup, then logic, then exit — which matters for this hook whose control flow
+# drives its exit codes. The crate is clean today, so this acts as a regression
+# guard against mid-body item definitions creeping in.
+items_after_statements = "warn"
