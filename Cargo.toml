@@ -57,6 +57,14 @@ unnecessary_wraps = "deny"
 # Catching them keeps `match` expressions DRY and surfaces accidental
 # duplicate handling that can hide logic bugs.
 match_same_arms = "warn"
+# Flag or-patterns written nested instead of merged at the deepest common level,
+# e.g. `Some("a") | Some("b")` where `Some("a" | "b")` reads tighter. Keeps a
+# single arm with one or-pattern instead of repeating the outer constructor per
+# alternative — the same DRY/intent-revealing goal as `match_same_arms`. The
+# crate is clean today (the `None | Some("check")` arm in `main` is already in
+# its tightest form), so this acts as a regression guard against un-merged
+# or-patterns creeping in.
+unnested_or_patterns = "warn"
 # Flag `opt.map(f).unwrap_or(default)` / `.unwrap_or_else(..)` chains that read
 # more clearly as a single `map_or` / `map_or_else`. This crate already prefers
 # the `map_or_else` form (see `build_hook_content`), so enabling the lint keeps
@@ -74,6 +82,12 @@ redundant_closure_for_method_calls = "warn"
 # enforce that invariant — any accidental stdout write is a bug here. The crate is
 # clean today, so this acts as a regression guard.
 print_stdout = "deny"
+# Flag `if !cond { a } else { b }` where the negated condition forces the reader
+# to mentally invert it before reaching the body in the `else` arm. Swapping to
+# `if cond { b } else { a }` puts the positive case first and reads more directly.
+# The crate is clean today, so this guards against negated-`if` branches creeping
+# into the control flow this tool relies on for its exit-code decisions.
+if_not_else = "warn"
 # Flag patterns that bind the unit type `()` with a wildcard `_` instead of the
 # explicit `()` pattern, e.g. `Ok(_)` / `if let Ok(_) = f()` where the success
 # value is unit. Writing `Ok(())` documents that the call yields nothing and lets
@@ -82,3 +96,13 @@ print_stdout = "deny"
 # `Result<(), _>` IO calls (`fs::write`, `fs::set_permissions`, `fs::remove_file`),
 # so the lint keeps their unit results spelled out and intent-revealing.
 ignored_unit_patterns = "warn"
+# Flag `&s[a..b]` byte-range slicing of a `str`/`String`. Such slicing panics at
+# runtime if a boundary falls inside a multi-byte UTF-8 char or runs past the end
+# — the exact opaque-panic failure mode this crate already forbids via
+# `unwrap_used`, `expect_used`, `panic` and `indexing_slicing`. A pre-commit hook
+# parses git paths and config text (which can contain non-ASCII), so a stray
+# string slice could abort the hook with a panic instead of a deliberate error +
+# exit code. The crate uses no string slicing today, so `deny` (matching the rest
+# of the panic-safety family) locks in that clean state and pushes any future need
+# toward charwise APIs (`char_indices`, `split`, `strip_prefix`, `get(a..b)`).
+string_slice = "deny"
