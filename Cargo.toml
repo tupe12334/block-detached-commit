@@ -25,6 +25,7 @@ tempfile = "3"
 # guard that keeps stray debug prints out of releases.
 dbg_macro = "deny"
 manual_let_else = "warn"
+semicolon_if_nothing_returned = "warn"
 # Forbid `.unwrap()` in production code: a panic in a pre-commit hook aborts with
 # an opaque message and the panic exit code instead of the deliberate, actionable
 # errors and exit codes this tool reports. Test code is exempt (see the
@@ -84,6 +85,12 @@ redundant_closure_for_method_calls = "warn"
 # lint, matching `option_if_let_else` above) to stay conservative about the
 # occasional nursery false positive.
 redundant_clone = "warn"
+# Flag an `else` block whose preceding `if` branch always diverges (ends in
+# `return`/`break`/`continue` or a never-returning call). The `else` is then
+# dead weight: its body can be de-indented to the enclosing scope, turning the
+# construct into a flat guard clause. The crate is clean today, so this acts as
+# a regression guard keeping control flow shallow and the happy path readable.
+redundant_else = "warn"
 # Flag `if !cond { a } else { b }` where the negated condition forces the reader
 # to mentally invert it before reaching the body in the `else` arm. Swapping to
 # `if cond { b } else { a }` puts the positive case first and reads more directly.
@@ -108,3 +115,13 @@ ignored_unit_patterns = "warn"
 # of the panic-safety family) locks in that clean state and pushes any future need
 # toward charwise APIs (`char_indices`, `split`, `strip_prefix`, `get(a..b)`).
 string_slice = "deny"
+# Flag bare integer arithmetic (`+`, `-`, `*`, `<<`, …) that can overflow. In
+# debug builds an overflow panics; in release builds it silently wraps to a
+# wrong value. That panic is the same opaque-abort failure mode this crate
+# already forbids via `unwrap_used`, `expect_used`, `panic` and `string_slice`:
+# in a pre-commit hook it kills the commit with a cryptic panic message and the
+# panic exit code instead of this tool's deliberate error + exit code. The crate
+# does no bare arithmetic today, so `deny` (matching the rest of the panic-safety
+# family) locks in that clean state and pushes any future arithmetic toward an
+# explicit overflow strategy (`checked_*`, `saturating_*`, `wrapping_*`).
+arithmetic_side_effects = "deny"

@@ -124,7 +124,7 @@ fn build_hook_content(existing: &str) -> String {
     existing.find('\n').map_or_else(
         || format!("{existing}\n{MARKER}\n{CALL}\n"),
         |nl| {
-            let (first_line, rest) = existing.split_at(nl + 1);
+            let (first_line, rest) = existing.split_at(nl.saturating_add(1));
             format!("{first_line}{MARKER}\n{CALL}\n{rest}")
         },
     )
