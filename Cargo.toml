@@ -100,3 +100,13 @@ ignored_unit_patterns = "warn"
 # of the panic-safety family) locks in that clean state and pushes any future need
 # toward charwise APIs (`char_indices`, `split`, `strip_prefix`, `get(a..b)`).
 string_slice = "deny"
+# Flag bare integer arithmetic (`+`, `-`, `*`, `<<`, …) that can overflow. In
+# debug builds an overflow panics; in release builds it silently wraps to a
+# wrong value. That panic is the same opaque-abort failure mode this crate
+# already forbids via `unwrap_used`, `expect_used`, `panic` and `string_slice`:
+# in a pre-commit hook it kills the commit with a cryptic panic message and the
+# panic exit code instead of this tool's deliberate error + exit code. The crate
+# does no bare arithmetic today, so `deny` (matching the rest of the panic-safety
+# family) locks in that clean state and pushes any future arithmetic toward an
+# explicit overflow strategy (`checked_*`, `saturating_*`, `wrapping_*`).
+arithmetic_side_effects = "deny"
