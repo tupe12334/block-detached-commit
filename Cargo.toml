@@ -25,6 +25,7 @@ tempfile = "3"
 # guard that keeps stray debug prints out of releases.
 dbg_macro = "deny"
 manual_let_else = "warn"
+semicolon_if_nothing_returned = "warn"
 # Forbid `.unwrap()` in production code: a panic in a pre-commit hook aborts with
 # an opaque message and the panic exit code instead of the deliberate, actionable
 # errors and exit codes this tool reports. Test code is exempt (see the
