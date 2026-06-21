@@ -98,3 +98,13 @@ ignored_unit_patterns = "warn"
 # clean today (`main` dispatches over several real subcommand arms, not one), so
 # this acts as a regression guard keeping control flow in its clearest spelling.
 single_match_else = "warn"
+# Flag `&s[a..b]` byte-range slicing of a `str`/`String`. Such slicing panics at
+# runtime if a boundary falls inside a multi-byte UTF-8 char or runs past the end
+# — the exact opaque-panic failure mode this crate already forbids via
+# `unwrap_used`, `expect_used`, `panic` and `indexing_slicing`. A pre-commit hook
+# parses git paths and config text (which can contain non-ASCII), so a stray
+# string slice could abort the hook with a panic instead of a deliberate error +
+# exit code. The crate uses no string slicing today, so `deny` (matching the rest
+# of the panic-safety family) locks in that clean state and pushes any future need
+# toward charwise APIs (`char_indices`, `split`, `strip_prefix`, `get(a..b)`).
+string_slice = "deny"
