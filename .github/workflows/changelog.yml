@@ -1,0 +1,24 @@
+name: Changelog
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            src:
+              - '**'
+              - '!CHANGELOG.md'
+              - '!.github/**'
+            changelog:
+              - 'CHANGELOG.md'
+      - name: Require CHANGELOG update
+        if: steps.changes.outputs.src == 'true' && steps.changes.outputs.changelog == 'false'
+        run: |
+          echo '::error::Source files changed but CHANGELOG.md was not updated. Add an entry under [Unreleased].'
+          exit 1
