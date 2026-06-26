@@ -1,7 +1,15 @@
 // `clippy::unwrap_used` and `clippy::expect_used` are denied for production code
 // (see Cargo.toml). Tests legitimately use `.unwrap()`/`.expect()` to assert on
 // setup invariants, so exempt them.
-#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))]
+#![cfg_attr(
+    test,
+    allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        reason = "test code legitimately uses panicking macros and `.unwrap()`/`.expect()` to assert setup invariants"
+    )
+)]
 
 use std::fs;
 use std::io::Read;
