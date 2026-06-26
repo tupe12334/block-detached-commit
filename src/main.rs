@@ -97,12 +97,14 @@ fn run_uninstall() {
         .any(|l| !l.trim().is_empty() && !l.starts_with("#!") && !l.starts_with('#'));
 
     if !has_real_content {
-        let _ = fs::remove_file(&hook_path);
+        _ = fs::remove_file(&hook_path);
         eprintln!("info: hook removed (file was empty after uninstall)");
         return;
     }
 
-    let new_content = filtered.join("\n") + "\n";
+    let new_content = filtered.join("
+") + "
+";
     if let Err(e) = fs::write(&hook_path, &new_content) {
         eprintln!("error: cannot write {}: {e}", hook_path.display());
         process::exit(2);
@@ -118,14 +120,23 @@ fn is_attached(head_content: &str) -> bool {
 
 fn build_hook_content(existing: &str) -> String {
     if existing.is_empty() {
-        return format!("#!/bin/sh\n{MARKER}\n{CALL}\n");
+        return format!("#!/bin/sh
+{MARKER}
+{CALL}
+");
     }
     // Insert after the shebang line (if present) so we don't break it
-    existing.find('\n').map_or_else(
-        || format!("{existing}\n{MARKER}\n{CALL}\n"),
+    existing.find('
+').map_or_else(
+        || format!("{existing}
+{MARKER}
+{CALL}
+"),
         |nl| {
             let (first_line, rest) = existing.split_at(nl.saturating_add(1));
-            format!("{first_line}{MARKER}\n{CALL}\n{rest}")
+            format!("{first_line}{MARKER}
+{CALL}
+{rest}")
         },
     )
 }
@@ -183,7 +194,7 @@ fn make_executable(path: &Path) {
     if let Ok(meta) = fs::metadata(path) {
         let mut perms = meta.permissions();
         perms.set_mode(perms.mode() | 0o755);
-        let _ = fs::set_permissions(path, perms);
+        _ = fs::set_permissions(path, perms);
     }
 }
 
@@ -210,29 +221,37 @@ mod tests {
 
     #[test]
     fn attached_head_is_allowed() {
-        assert!(is_attached("ref: refs/heads/main\n"));
-        assert!(is_attached("ref: refs/heads/feature/foo\n"));
+        assert!(is_attached("ref: refs/heads/main
+"));
+        assert!(is_attached("ref: refs/heads/feature/foo
+"));
     }
 
     #[test]
     fn detached_head_is_blocked() {
-        assert!(!is_attached("a3f9c2d1b8e4f6a2c9d5e7b3f1a8c6d4e2f9b7a5\n"));
-        assert!(!is_attached("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef\n"));
+        assert!(!is_attached("a3f9c2d1b8e4f6a2c9d5e7b3f1a8c6d4e2f9b7a5
+"));
+        assert!(!is_attached("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef
+"));
     }
 
     #[test]
     fn build_hook_content_empty_file() {
         let content = build_hook_content("");
-        assert!(content.starts_with("#!/bin/sh\n"));
+        assert!(content.starts_with("#!/bin/sh
+"));
         assert!(content.contains(MARKER));
         assert!(content.contains(CALL));
     }
 
     #[test]
     fn build_hook_content_preserves_existing_shebang() {
-        let existing = "#!/bin/bash\nsome-other-hook\n";
+        let existing = "#!/bin/bash
+some-other-hook
+";
         let content = build_hook_content(existing);
-        assert!(content.starts_with("#!/bin/bash\n"));
+        assert!(content.starts_with("#!/bin/bash
+"));
         assert!(content.contains(MARKER));
         // marker must come before existing hook body
         let marker_pos = content.find(MARKER).unwrap();
@@ -263,12 +282,18 @@ mod tests {
 
     #[test]
     fn uninstall_removes_entry_and_keeps_rest() {
-        let existing = "#!/bin/sh\nother-hook\n# block-detached-commit\nblock-detached-commit\n";
+        let existing = "#!/bin/sh
+other-hook
+# block-detached-commit
+block-detached-commit
+";
         let filtered: Vec<&str> = existing
             .lines()
             .filter(|l| *l != MARKER && *l != CALL)
             .collect();
-        let result = filtered.join("\n") + "\n";
+        let result = filtered.join("
+") + "
+";
         assert!(!result.contains(MARKER));
         assert!(!result.contains(CALL));
         assert!(result.contains("other-hook"));
@@ -279,7 +304,8 @@ mod tests {
         let repo = make_git_repo();
         let subdir = repo.path().join("src").join("deep");
         fs::create_dir_all(&subdir).unwrap();
-        set_head(&repo, "ref: refs/heads/main\n");
+        set_head(&repo, "ref: refs/heads/main
+");
 
         let original = std::env::current_dir().unwrap();
         std::env::set_current_dir(&subdir).unwrap();
