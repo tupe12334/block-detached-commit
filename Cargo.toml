@@ -47,6 +47,14 @@ needless_pass_by_value = "warn"
 # assert invariants, so it is exempt (see the `cfg_attr(test, allow(...))` at
 # the top of src/main.rs).
 panic = "deny"
+# `todo!()` is a placeholder macro that expands to a panic — it is a
+# compile-time breadcrumb that should never reach production. Denying it
+# here closes the gap left by `panic = "deny"`: clippy::panic catches
+# `panic!()` calls, but `todo!()` is a separate restriction lint. A
+# pre-commit hook that hits a `todo!()` aborts with an opaque panic message
+# and the panic exit code instead of the tool's deliberate error output and
+# exit codes, so it belongs in the same deny family.
+todo = "deny"
 option_if_let_else = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
