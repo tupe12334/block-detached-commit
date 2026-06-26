@@ -117,3 +117,15 @@ string_slice = "deny"
 # family) locks in that clean state and pushes any future arithmetic toward an
 # explicit overflow strategy (`checked_*`, `saturating_*`, `wrapping_*`).
 arithmetic_side_effects = "deny"
+# Forbid `let _ = <must_use expr>` — the `let _` pattern silently discards a
+# value marked `#[must_use]` (e.g. `Result`, `Option`) without any indication
+# that the caller chose to ignore it deliberately. The existing `unwrap_used`,
+# `expect_used`, `panic`, and `arithmetic_side_effects` denials already forbid
+# the other ways code can silently fail; `let_underscore_must_use` closes the
+# remaining gap. Callers that genuinely want to discard a must-use value should
+# use the `_ = expr;` statement form (no `let`) or `drop(expr)`, which are not
+# caught by this lint and make the intentional discard explicit at the point of
+# the call. The crate had two such sites (`fs::remove_file` and
+# `fs::set_permissions` in best-effort cleanup paths); both have been migrated
+# to the `_ = expr;` form.
+let_underscore_must_use = "deny"
