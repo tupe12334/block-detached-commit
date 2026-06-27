@@ -47,6 +47,16 @@ needless_pass_by_value = "warn"
 # assert invariants, so it is exempt (see the `cfg_attr(test, allow(...))` at
 # the top of src/main.rs).
 panic = "deny"
+# `unreachable!()` is a panicking macro: hitting one in production aborts the
+# pre-commit hook with the same opaque panic message and exit code that
+# `unwrap_used`, `expect_used`, and `panic` are already denied to prevent. The
+# comment for `panic` above already lists `unreachable!` as a macro to avoid, but
+# `clippy::panic` only covers `panic!()` itself — each panicking macro has its own
+# restriction lint. Adding `unreachable = "deny"` closes that gap: every control
+# flow path that "cannot happen" must be expressed as an explicit error return
+# rather than a runtime abort. The crate has no `unreachable!()` calls today, so
+# this acts as a regression guard.
+unreachable = "deny"
 option_if_let_else = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
