@@ -47,6 +47,17 @@ needless_pass_by_value = "warn"
 # assert invariants, so it is exempt (see the `cfg_attr(test, allow(...))` at
 # the top of src/main.rs).
 panic = "deny"
+# `unimplemented!()` expands to a panic at runtime — the same opaque-abort
+# failure mode that `panic`, `unwrap_used`, `expect_used`, and
+# `arithmetic_side_effects` already forbid. Unlike `todo!()` (which signals
+# work-in-progress), `unimplemented!()` signals a code path the author chose
+# not to handle; in a pre-commit hook that means a user can trigger an
+# unhandled path and receive a cryptic panic instead of a clear error + exit
+# code. Deny it so every code path stays an explicit `eprintln!` +
+# `process::exit`. The crate has no `unimplemented!()` calls today, so this
+# acts as a regression guard that closes the last gap in the panic-safety
+# family.
+unimplemented = "deny"
 option_if_let_else = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
