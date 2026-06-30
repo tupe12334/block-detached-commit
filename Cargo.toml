@@ -38,6 +38,14 @@ unwrap_used = "deny"
 # allow(...))` at the top of src/main.rs).
 expect_used = "deny"
 needless_pass_by_value = "warn"
+# Flag `for x in coll.iter()` / `coll.iter_mut()` / `coll.into_iter()` where a
+# plain `for x in &coll` / `&mut coll` / `coll` reads the same and drops the
+# explicit adapter call. Keeps `for` loops in their tightest, intent-revealing
+# form — the same clarity goal as the other lints in this table
+# (`redundant_closure_for_method_calls`, `option_if_let_else`, `map_unwrap_or`).
+# The crate uses no such loops today, so this acts as a regression guard against
+# verbose iterator-loop forms creeping in.
+explicit_iter_loop = "warn"
 # A reachable `panic!`/`unreachable!`/`todo!`/`unimplemented!` aborts the
 # pre-commit hook with an opaque panic message and the panic exit code instead
 # of the deliberate, actionable errors and exit codes this tool reports — the
