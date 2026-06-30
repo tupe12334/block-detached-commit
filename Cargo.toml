@@ -128,3 +128,9 @@ string_slice = "deny"
 # family) locks in that clean state and pushes any future arithmetic toward an
 # explicit overflow strategy (`checked_*`, `saturating_*`, `wrapping_*`).
 arithmetic_side_effects = "deny"
+# Require a `reason = "..."` argument on every `#[allow(...)]` attribute so that
+# lint suppressions are self-documenting. This crate already documents every entry
+# in this `[lints.clippy]` table; extending that philosophy to inline suppressions
+# makes the intent behind every silence explicit and reviewable, and prevents
+# "mystery allows" from accumulating over time.
+allow_attributes_without_reason = "warn"
