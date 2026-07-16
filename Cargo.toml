@@ -67,6 +67,13 @@ panic = "deny"
 # acts as a regression guard that closes the last gap in the panic-safety
 # family.
 unimplemented = "deny"
+# A reached `unreachable!()` aborts with a panic and the panic exit code,
+# the same opaque-abort failure mode already forbidden via `panic`,
+# `unwrap_used`, `expect_used`, and `unimplemented`. Deny it so every
+# "cannot happen" branch is expressed as an explicit error return instead
+# of a runtime abort. The crate has no `unreachable!()` calls today, so
+# this closes the last gap in the panic-safety family as a regression guard.
+unreachable = "deny"
 option_if_let_else = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
