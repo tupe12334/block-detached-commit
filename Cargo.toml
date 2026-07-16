@@ -133,6 +133,13 @@ ignored_unit_patterns = "warn"
 # conversions today, so denying it acts as a regression guard keeping the
 # conversion spelling consistent as the code grows.
 str_to_string = "deny"
+# Flag direct slice/array indexing and range slicing (`xs[i]`, `&s[a..b]`),
+# which panic at runtime on an out-of-bounds index instead of returning an
+# `Option` — the same opaque-abort failure mode already forbidden via
+# `unwrap_used`, `expect_used`, and `panic`. Deny it so any future indexing
+# is an explicit, handled `.get(i)` / `.get(a..b)` instead of a bare panic.
+# The crate does no direct indexing today, so this acts as a regression guard.
+indexing_slicing = "deny"
 # Flag `&s[a..b]` byte-range slicing of a `str`/`String`. Such slicing panics at
 # runtime if a boundary falls inside a multi-byte UTF-8 char or runs past the end
 # — the exact opaque-panic failure mode this crate already forbids via
