@@ -67,6 +67,13 @@ panic = "deny"
 # acts as a regression guard that closes the last gap in the panic-safety
 # family.
 unimplemented = "deny"
+# `todo!()` is a placeholder stub that expands to a runtime panic — the same
+# opaque-abort failure mode already forbidden via `panic`, `unwrap_used`,
+# `expect_used`, and `unimplemented`. It marks code as not finished, not
+# code that should ship in a pre-commit hook. Deny it so every code path
+# stays an explicit `eprintln!` + `process::exit`. The crate has no
+# `todo!()` calls today, so this acts as a regression guard.
+todo = "deny"
 option_if_let_else = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
