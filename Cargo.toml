@@ -75,6 +75,12 @@ unimplemented = "deny"
 # `todo!()` calls today, so this acts as a regression guard.
 todo = "deny"
 option_if_let_else = "warn"
+# Flag `.clone()` calls where the original value is never used again, so a move
+# would do instead of an unneeded heap allocation + copy. Kept at `warn` (not
+# `deny`) since this is a `nursery` lint and can occasionally false-positive,
+# matching `option_if_let_else` above. The crate is clone-free today, so this
+# acts as a regression guard against needless clones creeping in later.
+redundant_clone = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
 # into needless `?`/`unwrap`/`match` ceremony. The crate is clean today, so this
