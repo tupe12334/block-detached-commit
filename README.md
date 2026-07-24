@@ -106,6 +106,10 @@ Pre-built binaries are published for:
 
 The npm and Go shells download the correct binary for the current platform on install. The Rust crate compiles from source via `cargo`.
 
+## Related projects
+
+- [moadim](https://moadim.io/) — loop engineering: build, schedule & run agent loops.
+
 ## License
 
 MIT
