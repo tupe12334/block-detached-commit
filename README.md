@@ -40,7 +40,7 @@ For projects using [Husky](https://typicode.github.io/husky) or [lint-staged](ht
 ### Go
 
 ```bash
-go install github.com/tupe12334/block-detached-commit/go@latest
+go install github.com/tupe12334/block-detached-commit/go/cmd/block-detached-commit@latest
 block-detached-commit install
 ```
 
@@ -105,6 +105,10 @@ Pre-built binaries are published for:
 | Windows | x86_64 |
 
 The npm and Go shells download the correct binary for the current platform on install. The Rust crate compiles from source via `cargo`.
+
+## Related projects
+
+- [moadim](https://moadim.io/) — loop engineering: build, schedule & run agent loops.
 
 ## License
 
