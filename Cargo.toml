@@ -74,7 +74,20 @@ unimplemented = "deny"
 # of a runtime abort. The crate has no `unreachable!()` calls today, so
 # this closes the last gap in the panic-safety family as a regression guard.
 unreachable = "deny"
+# `todo!()` is a placeholder stub that expands to a runtime panic — the same
+# opaque-abort failure mode already forbidden via `panic`, `unwrap_used`,
+# `expect_used`, and `unimplemented`. It marks code as not finished, not
+# code that should ship in a pre-commit hook. Deny it so every code path
+# stays an explicit `eprintln!` + `process::exit`. The crate has no
+# `todo!()` calls today, so this acts as a regression guard.
+todo = "deny"
 option_if_let_else = "warn"
+# Flag `.clone()` calls where the original value is never used again, so a move
+# would do instead of an unneeded heap allocation + copy. Kept at `warn` (not
+# `deny`) since this is a `nursery` lint and can occasionally false-positive,
+# matching `option_if_let_else` above. The crate is clone-free today, so this
+# acts as a regression guard against needless clones creeping in later.
+redundant_clone = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
 # into needless `?`/`unwrap`/`match` ceremony. The crate is clean today, so this
@@ -140,6 +153,13 @@ ignored_unit_patterns = "warn"
 # conversions today, so denying it acts as a regression guard keeping the
 # conversion spelling consistent as the code grows.
 str_to_string = "deny"
+# Flag direct slice/array indexing and range slicing (`xs[i]`, `&s[a..b]`),
+# which panic at runtime on an out-of-bounds index instead of returning an
+# `Option` — the same opaque-abort failure mode already forbidden via
+# `unwrap_used`, `expect_used`, and `panic`. Deny it so any future indexing
+# is an explicit, handled `.get(i)` / `.get(a..b)` instead of a bare panic.
+# The crate does no direct indexing today, so this acts as a regression guard.
+indexing_slicing = "deny"
 # Flag `&s[a..b]` byte-range slicing of a `str`/`String`. Such slicing panics at
 # runtime if a boundary falls inside a multi-byte UTF-8 char or runs past the end
 # — the exact opaque-panic failure mode this crate already forbids via
