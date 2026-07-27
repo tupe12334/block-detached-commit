@@ -1,10 +1,16 @@
-// `clippy::unwrap_used`, `clippy::expect_used` and `clippy::indexing_slicing` are
-// denied for production code (see Cargo.toml). Tests legitimately use
-// `.unwrap()`/`.expect()` and direct indexing to assert on setup invariants, so
-// exempt them.
+// `clippy::unwrap_used`, `clippy::expect_used`, `clippy::panic` and
+// `clippy::indexing_slicing` are denied for production code (see Cargo.toml).
+// Tests legitimately use `.unwrap()`/`.expect()`, panicking macros, and direct
+// indexing to assert on setup invariants, so exempt them.
 #![cfg_attr(
     test,
-    allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)
+    allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        clippy::indexing_slicing,
+        reason = "test code legitimately uses panicking macros, direct indexing, and `.unwrap()`/`.expect()` to assert setup invariants"
+    )
 )]
 
 use std::fs;
@@ -128,7 +134,7 @@ fn build_hook_content(existing: &str) -> String {
     existing.find('\n').map_or_else(
         || format!("{existing}\n{MARKER}\n{CALL}\n"),
         |nl| {
-            let (first_line, rest) = existing.split_at(nl + 1);
+            let (first_line, rest) = existing.split_at(nl.saturating_add(1));
             format!("{first_line}{MARKER}\n{CALL}\n{rest}")
         },
     )

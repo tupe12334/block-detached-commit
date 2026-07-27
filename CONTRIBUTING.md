@@ -14,8 +14,9 @@ block-detached-commit/
 │   └── scripts/
 │       └── postinstall.js  # downloads correct platform binary on npm install
 ├── go/
-│   ├── go.mod           # Go module (shell)
-│   └── main.go          # downloads + runs native binary
+│   ├── go.mod                          # Go module (shell)
+│   └── cmd/block-detached-commit/
+│       └── main.go                     # downloads + runs native binary
 └── .github/
     └── workflows/
         ├── ci.yml       # test on push/PR
@@ -57,7 +58,7 @@ Exit codes:
 | Code | Meaning |
 |------|---------|
 | 0    | HEAD is attached / hook installed successfully |
-| 1    | Detached HEAD detected / hook not present |
+| 1    | Detached HEAD detected |
 | 2    | Not inside a git repository |
 
 Do not change exit codes or subcommand names without a major version bump — the shells depend on them.
@@ -118,7 +119,7 @@ Releases are driven by `release.yml`. On a version tag (`v*`):
 | `aarch64-apple-darwin`        | darwin / arm64      |
 | `x86_64-pc-windows-msvc`      | win32 / x64         |
 
-To add a new target: add it to the matrix in `release.yml`, add the corresponding platform package in `npm/`, and add the GOOS/GOARCH case in `go/main.go`.
+To add a new target: add it to the matrix in `release.yml`, add the corresponding platform package in `npm/`, and add the GOOS/GOARCH case in `go/cmd/block-detached-commit/main.go`.
 
 ## Testing the hook end-to-end
 
@@ -147,7 +148,7 @@ git commit --allow-empty -m "should fail"
 
 ## Releasing
 
-Maintainers only. Bump the version consistently across `Cargo.toml`, `npm/package.json`, and `go/go.mod`, then push a tag:
+Maintainers only. Bump the version consistently across `Cargo.toml`, `npm/package.json`, and the fallback `version` var in `go/cmd/block-detached-commit/main.go`, then push a tag:
 
 ```bash
 git tag v1.2.3

@@ -18,7 +18,15 @@ path = "src/main.rs"
 tempfile = "3"
 
 [lints.clippy]
+# Flag any `dbg!(...)` macro left in the source. `dbg!` writes to stderr and is a
+# debugging aid that should never ship: in this pre-commit hook it would pollute
+# the tool's deliberate, structured stderr output and leak into users' commit
+# runs. The crate is free of `dbg!` today, so denying it acts as a regression
+# guard that keeps stray debug prints out of releases.
+dbg_macro = "deny"
 manual_let_else = "warn"
+uninlined_format_args = "warn"
+semicolon_if_nothing_returned = "warn"
 # Forbid `.unwrap()` in production code: a panic in a pre-commit hook aborts with
 # an opaque message and the panic exit code instead of the deliberate, actionable
 # errors and exit codes this tool reports. Test code is exempt (see the
@@ -39,7 +47,48 @@ expect_used = "deny"
 # of src/main.rs).
 indexing_slicing = "deny"
 needless_pass_by_value = "warn"
+# Flag `for x in coll.iter()` / `coll.iter_mut()` / `coll.into_iter()` where a
+# plain `for x in &coll` / `&mut coll` / `coll` reads the same and drops the
+# explicit adapter call. Keeps `for` loops in their tightest, intent-revealing
+# form — the same clarity goal as the other lints in this table
+# (`redundant_closure_for_method_calls`, `option_if_let_else`, `map_unwrap_or`).
+# The crate uses no such loops today, so this acts as a regression guard against
+# verbose iterator-loop forms creeping in.
+explicit_iter_loop = "warn"
+# A reachable `panic!`/`unreachable!`/`todo!`/`unimplemented!` aborts the
+# pre-commit hook with an opaque panic message and the panic exit code instead
+# of the deliberate, actionable errors and exit codes this tool reports — the
+# same failure mode already closed off by denying `unwrap_used`/`expect_used`.
+# Deny the panicking macros in production code so every error path stays an
+# explicit `eprintln!` + `process::exit`. Test code legitimately panics to
+# assert invariants, so it is exempt (see the `cfg_attr(test, allow(...))` at
+# the top of src/main.rs).
+panic = "deny"
+# `unimplemented!()` expands to a panic at runtime — the same opaque-abort
+# failure mode that `panic`, `unwrap_used`, `expect_used`, and
+# `arithmetic_side_effects` already forbid. Unlike `todo!()` (which signals
+# work-in-progress), `unimplemented!()` signals a code path the author chose
+# not to handle; in a pre-commit hook that means a user can trigger an
+# unhandled path and receive a cryptic panic instead of a clear error + exit
+# code. Deny it so every code path stays an explicit `eprintln!` +
+# `process::exit`. The crate has no `unimplemented!()` calls today, so this
+# acts as a regression guard that closes the last gap in the panic-safety
+# family.
+unimplemented = "deny"
+# `todo!()` is a placeholder stub that expands to a runtime panic — the same
+# opaque-abort failure mode already forbidden via `panic`, `unwrap_used`,
+# `expect_used`, and `unimplemented`. It marks code as not finished, not
+# code that should ship in a pre-commit hook. Deny it so every code path
+# stays an explicit `eprintln!` + `process::exit`. The crate has no
+# `todo!()` calls today, so this acts as a regression guard.
+todo = "deny"
 option_if_let_else = "warn"
+# Flag `.clone()` calls where the original value is never used again, so a move
+# would do instead of an unneeded heap allocation + copy. Kept at `warn` (not
+# `deny`) since this is a `nursery` lint and can occasionally false-positive,
+# matching `option_if_let_else` above. The crate is clone-free today, so this
+# acts as a regression guard against needless clones creeping in later.
+redundant_clone = "warn"
 # Flag functions that return `Result`/`Option` but never produce `Err`/`None`.
 # Such wrappers advertise a failure mode that cannot occur and force every caller
 # into needless `?`/`unwrap`/`match` ceremony. The crate is clean today, so this
@@ -50,6 +99,14 @@ unnecessary_wraps = "deny"
 # Catching them keeps `match` expressions DRY and surfaces accidental
 # duplicate handling that can hide logic bugs.
 match_same_arms = "warn"
+# Flag or-patterns written nested instead of merged at the deepest common level,
+# e.g. `Some("a") | Some("b")` where `Some("a" | "b")` reads tighter. Keeps a
+# single arm with one or-pattern instead of repeating the outer constructor per
+# alternative — the same DRY/intent-revealing goal as `match_same_arms`. The
+# crate is clean today (the `None | Some("check")` arm in `main` is already in
+# its tightest form), so this acts as a regression guard against un-merged
+# or-patterns creeping in.
+unnested_or_patterns = "warn"
 # Flag `opt.map(f).unwrap_or(default)` / `.unwrap_or_else(..)` chains that read
 # more clearly as a single `map_or` / `map_or_else`. This crate already prefers
 # the `map_or_else` form (see `build_hook_content`), so enabling the lint keeps
@@ -61,3 +118,65 @@ map_unwrap_or = "warn"
 # `main`), so enabling this keeps closures from creeping back in and surfaces the
 # shorter, intent-revealing spelling.
 redundant_closure_for_method_calls = "warn"
+# All user-facing output in this tool goes to stderr via `eprintln!` so stdout
+# stays clean: a pre-commit hook runs inside git's plumbing, and stray stdout can
+# interfere with callers/tooling that capture it. Deny `println!` / `print!` to
+# enforce that invariant — any accidental stdout write is a bug here. The crate is
+# clean today, so this acts as a regression guard.
+print_stdout = "deny"
+# Flag an `else` block whose preceding `if` branch always diverges (ends in
+# `return`/`break`/`continue` or a never-returning call). The `else` is then
+# dead weight: its body can be de-indented to the enclosing scope, turning the
+# construct into a flat guard clause. The crate is clean today, so this acts as
+# a regression guard keeping control flow shallow and the happy path readable.
+redundant_else = "warn"
+# Flag `if !cond { a } else { b }` where the negated condition forces the reader
+# to mentally invert it before reaching the body in the `else` arm. Swapping to
+# `if cond { b } else { a }` puts the positive case first and reads more directly.
+# The crate is clean today, so this guards against negated-`if` branches creeping
+# into the control flow this tool relies on for its exit-code decisions.
+if_not_else = "warn"
+# Flag patterns that bind the unit type `()` with a wildcard `_` instead of the
+# explicit `()` pattern, e.g. `Ok(_)` / `if let Ok(_) = f()` where the success
+# value is unit. Writing `Ok(())` documents that the call yields nothing and lets
+# the type checker catch the day a `()`-returning call starts returning real data
+# (the wildcard would silently keep swallowing it). This crate threads several
+# `Result<(), _>` IO calls (`fs::write`, `fs::set_permissions`, `fs::remove_file`),
+# so the lint keeps their unit results spelled out and intent-revealing.
+ignored_unit_patterns = "warn"
+# Flag `.to_string()` calls on values that are already `&str`, preferring the
+# more explicit `.to_owned()`. Both produce an owned `String`, but `.to_string()`
+# routes through the `Display`/`ToString` machinery and reads as a formatting
+# operation, while `.to_owned()` states the real intent: clone a borrowed string
+# into an owned one. Spelling it `.to_owned()` keeps "I am cloning a borrowed
+# &str" distinct from "I am rendering a value via Display", matching this crate's
+# preference for intent-revealing idioms. The crate is free of `&str`-to-`String`
+# conversions today, so denying it acts as a regression guard keeping the
+# conversion spelling consistent as the code grows.
+str_to_string = "deny"
+# Flag `&s[a..b]` byte-range slicing of a `str`/`String`. Such slicing panics at
+# runtime if a boundary falls inside a multi-byte UTF-8 char or runs past the end
+# — the exact opaque-panic failure mode this crate already forbids via
+# `unwrap_used`, `expect_used`, `panic` and `indexing_slicing`. A pre-commit hook
+# parses git paths and config text (which can contain non-ASCII), so a stray
+# string slice could abort the hook with a panic instead of a deliberate error +
+# exit code. The crate uses no string slicing today, so `deny` (matching the rest
+# of the panic-safety family) locks in that clean state and pushes any future need
+# toward charwise APIs (`char_indices`, `split`, `strip_prefix`, `get(a..b)`).
+string_slice = "deny"
+# Flag bare integer arithmetic (`+`, `-`, `*`, `<<`, …) that can overflow. In
+# debug builds an overflow panics; in release builds it silently wraps to a
+# wrong value. That panic is the same opaque-abort failure mode this crate
+# already forbids via `unwrap_used`, `expect_used`, `panic` and `string_slice`:
+# in a pre-commit hook it kills the commit with a cryptic panic message and the
+# panic exit code instead of this tool's deliberate error + exit code. The crate
+# does no bare arithmetic today, so `deny` (matching the rest of the panic-safety
+# family) locks in that clean state and pushes any future arithmetic toward an
+# explicit overflow strategy (`checked_*`, `saturating_*`, `wrapping_*`).
+arithmetic_side_effects = "deny"
+# Require a `reason = "..."` argument on every `#[allow(...)]` attribute so that
+# lint suppressions are self-documenting. This crate already documents every entry
+# in this `[lints.clippy]` table; extending that philosophy to inline suppressions
+# makes the intent behind every silence explicit and reviewable, and prevents
+# "mystery allows" from accumulating over time.
+allow_attributes_without_reason = "warn"
