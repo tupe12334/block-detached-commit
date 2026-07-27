@@ -16,5 +16,27 @@
       "Bash(cargo check *)",
       "Bash(./scripts/release.sh *)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx block-no-verify"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__github__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx block-no-verify"
+          }
+        ]
+      }
+    ]
   }
 }
