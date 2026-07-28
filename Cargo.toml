@@ -38,6 +38,14 @@ unwrap_used = "deny"
 # the gap left by `unwrap_used`; test code is exempt (see the `cfg_attr(test,
 # allow(...))` at the top of src/main.rs).
 expect_used = "deny"
+# Flag slice/array indexing (`xs[i]`, `&s[a..b]`) that panics on an out-of-bounds
+# index. In a pre-commit hook such a panic aborts with an opaque message and the
+# panic exit code instead of this tool's deliberate, actionable errors and exit
+# codes — the same failure mode `unwrap_used`/`expect_used` already guard against.
+# Production code is index-free today, so this is a regression guard that keeps it
+# panic-safe; test code is exempt (see the `cfg_attr(test, allow(...))` at the top
+# of src/main.rs).
+indexing_slicing = "deny"
 needless_pass_by_value = "warn"
 # Flag `for x in coll.iter()` / `coll.iter_mut()` / `coll.into_iter()` where a
 # plain `for x in &coll` / `&mut coll` / `coll` reads the same and drops the
@@ -146,13 +154,6 @@ ignored_unit_patterns = "warn"
 # conversions today, so denying it acts as a regression guard keeping the
 # conversion spelling consistent as the code grows.
 str_to_string = "deny"
-# Flag direct slice/array indexing and range slicing (`xs[i]`, `&s[a..b]`),
-# which panic at runtime on an out-of-bounds index instead of returning an
-# `Option` — the same opaque-abort failure mode already forbidden via
-# `unwrap_used`, `expect_used`, and `panic`. Deny it so any future indexing
-# is an explicit, handled `.get(i)` / `.get(a..b)` instead of a bare panic.
-# The crate does no direct indexing today, so this acts as a regression guard.
-indexing_slicing = "deny"
 # Flag `&s[a..b]` byte-range slicing of a `str`/`String`. Such slicing panics at
 # runtime if a boundary falls inside a multi-byte UTF-8 char or runs past the end
 # — the exact opaque-panic failure mode this crate already forbids via

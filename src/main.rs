@@ -1,13 +1,15 @@
-// `clippy::unwrap_used` and `clippy::expect_used` are denied for production code
-// (see Cargo.toml). Tests legitimately use `.unwrap()`/`.expect()` to assert on
-// setup invariants, so exempt them.
+// `clippy::unwrap_used`, `clippy::expect_used`, `clippy::panic` and
+// `clippy::indexing_slicing` are denied for production code (see Cargo.toml).
+// Tests legitimately use `.unwrap()`/`.expect()`, panicking macros, and direct
+// indexing to assert on setup invariants, so exempt them.
 #![cfg_attr(
     test,
     allow(
         clippy::unwrap_used,
         clippy::expect_used,
         clippy::panic,
-        reason = "test code legitimately uses panicking macros and `.unwrap()`/`.expect()` to assert setup invariants"
+        clippy::indexing_slicing,
+        reason = "test code legitimately uses panicking macros, direct indexing, and `.unwrap()`/`.expect()` to assert setup invariants"
     )
 )]
 
