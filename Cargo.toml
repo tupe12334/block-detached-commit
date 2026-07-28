@@ -75,6 +75,16 @@ panic = "deny"
 # acts as a regression guard that closes the last gap in the panic-safety
 # family.
 unimplemented = "deny"
+# `unreachable!()` is a panicking macro: hitting one in production aborts the
+# pre-commit hook with the same opaque panic message and exit code that
+# `unwrap_used`, `expect_used`, and `panic` are already denied to prevent. The
+# comment for `panic` above already lists `unreachable!` as a macro to avoid, but
+# `clippy::panic` only covers `panic!()` itself — each panicking macro has its own
+# restriction lint. Adding `unreachable = "deny"` closes that gap: every control
+# flow path that "cannot happen" must be expressed as an explicit error return
+# rather than a runtime abort. The crate has no `unreachable!()` calls today, so
+# this acts as a regression guard.
+unreachable = "deny"
 # `todo!()` is a placeholder stub that expands to a runtime panic — the same
 # opaque-abort failure mode already forbidden via `panic`, `unwrap_used`,
 # `expect_used`, and `unimplemented`. It marks code as not finished, not
